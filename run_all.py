@@ -1122,6 +1122,56 @@ arm_gcc_version_runset = {
 }
 
 
+
+
+vexriscv_runset = {
+    'name' : 'VexRiscv bench',
+    'speed benchmark' : {
+        'timeout' : 1800,
+        'arglist' : [
+            './benchmark_speed.py',
+            '--target-module=run_vexriscv_gdb',
+	        '--gdb-command=riscv64-unknown-elf-gdb',
+            '--json-output',
+            '--no-json-comma',
+            '--timeout=100',
+            '--cpu-mhz=10'
+        ],
+        'desc' : 'run'
+    },
+    'runs' : [
+        { 'name' : 'VexRiscv O2',
+          'arch' : 'riscv32',
+          'chip' : 'generic',
+	      'board' : 'vexriscv',
+          'cc' : 'riscv64-unknown-elf-gcc',
+          'cflags' : '-march=rv32im -mabi=ilp32 -O2',
+          'ldflags' : '-march=rv32im -mabi=ilp32',
+          'path' : 'wuff1',
+        },
+        { 'name' : 'VexRiscv Os',
+          'arch' : 'riscv32',
+          'chip' : 'generic',
+	      'board' : 'vexriscv',
+          'cc' : 'riscv64-unknown-elf-gcc',
+          'cflags' : '-march=rv32im -mabi=ilp32 -Os',
+          'ldflags' : '-march=rv32im -mabi=ilp32',
+          'path' : 'wuff2',
+        },
+        { 'name' : 'VexRiscv Os -msave-restore',
+          'arch' : 'riscv32',
+          'chip' : 'generic',
+	      'board' : 'vexriscv',
+          'cc' : 'riscv64-unknown-elf-gcc',
+          'cflags' : '-march=rv32im -mabi=ilp32 -Os -msave-restore',
+          'ldflags' : '-march=rv32im -mabi=ilp32',
+          'path' : 'wuff3',
+        }
+    ]
+}
+
+
+
 def build_parser():
     """Build a parser for all the arguments"""
     parser = argparse.ArgumentParser(description='Build all the benchmarks')
@@ -1186,6 +1236,11 @@ def build_parser():
         '--arm-gcc-version',
         action='store_true',
         help='Run Arm GCC version comparison benchmarks'
+    )
+    parser.add_argument(
+        '--vexriscv',
+        action='store_true',
+        help='Run vexriscv benchmarks'
     )
 
     return parser
@@ -1333,6 +1388,8 @@ def main():
         runsets.append(gcc9_arch_runset)
     if args.arm_gcc_version:
         runsets.append(arm_gcc_version_runset)
+    if args.vexriscv:
+        runsets.append(vexriscv_runset)
 
     if not runsets:
         print("ERROR: No run sets specified")
